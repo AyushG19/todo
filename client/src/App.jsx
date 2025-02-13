@@ -1,5 +1,7 @@
 import { react, useState } from 'react'
-import Todo from './components/todo.jsx'
+import LoginPage from './components/login/LoginPage.jsx'
+import Todo from './components/todo/todo.jsx'
+import { Routes, Route } from 'react-router-dom'
 
 import './App.css'
 
@@ -7,7 +9,10 @@ function App() {
 
   return (
     <div className='container'>
-      <Todo/>
+      <Routes>
+        <Route path='*' element={<LoginPage/>}></Route>
+        <Route path='/todo' element={<Todo/>}></Route>
+      </Routes>
     </div>
   )
 }

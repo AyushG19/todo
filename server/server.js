@@ -1,10 +1,11 @@
 const express = require('express')
 const app = express()
-const pool = require("./db");
+const poolTodo = require("./db");
 const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
+
 
 //add todoo
 app.post("/todo", async (req, res) => {
@@ -12,7 +13,7 @@ app.post("/todo", async (req, res) => {
         const { description } = req.body;
         console.log(description);
         
-        const newTodo = await pool.query("INSERT INTO todo (description) VALUES($1) RETURNING *", [description]);
+        const newTodo = await poolTodo.query("INSERT INTO todo (description) VALUES($1) RETURNING *", [description]);
 
         res.json(newTodo.rows[0]);
     } catch (error) {
@@ -23,7 +24,7 @@ app.post("/todo", async (req, res) => {
 //get all todo
 app.get("/todo", async (req, res) => {
     try {
-        const list = await pool.query("SELECT * FROM todo ORDER BY tid ASC ");
+        const list = await poolTodo.query("SELECT * FROM todo ORDER BY tid ASC ");
 
         res.json(list.rows);
     } catch (error) {
@@ -37,7 +38,7 @@ app.put("/todo/:id", async (req, res) => {
         const { id } = req.params;
         const { description } = req.body;
 
-        const updateTodo = await pool.query("UPDATE todo SET description=$1 WHERE tid=$2", [description, id]);
+        const updateTodo = await poolTodo.query("UPDATE todo SET description=$1 WHERE tid=$2", [description, id]);
 
         res.json("todo updated");
     } catch (error) {
@@ -50,7 +51,7 @@ app.delete("/todo/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const deleteTodo = await pool.query("DELETE FROM todo WHERE tid=$1", [id]);
+        const deleteTodo = await poolTodo.query("DELETE FROM todo WHERE tid=$1", [id]);
 
         res.json("todo deleted");
     } catch (error) {
