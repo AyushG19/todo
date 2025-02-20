@@ -1,10 +1,9 @@
 import { React, useState } from 'react'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate, Navigate } from 'react-router-dom'
 import { Eye, EyeOff } from "lucide-react";
 import './loginpage.css';
 
 function LoginPage() {
-  const [isSignup, setIsSignup] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [recheckPassword, setRecheckPassword] = useState('');
@@ -16,18 +15,26 @@ function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch(
+      const res =await fetch(
         "http://localhost:4000/login",
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        })
-      if(res.ok){
-        navigate("/todo")
+          headers:{'Content-Type': 'application/json'},
+          body: JSON.stringify({ username, password }),
+          credentials:"include",
+        });
+
+      if (res.status === 401 || res.status === 403) {
+        setMessage("username or password incorrect");
+        return;
       }
+      console.log(res);
+      const data = await res.json();
+      localStorage.setItem('accessToken', data.accessToken);
+      navigate('/todo');
+      return;
     } catch (error) {
-      console.log(error)
+      console.log(error.message);
     }
   }
 
@@ -40,27 +47,32 @@ function LoginPage() {
       }, 100)
       setMessage("*check password");
       return;
-    }
+    };
+
     try {
-      const res = await fetch(
+      const res = fetch(
         "http://localhost:4000/signup",
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, recheckPassword })
-        })
-      if (!res.ok) {
+          body: JSON.stringify({ username, password })
+        });
+
+      if (res.status === 403 || res.status === 401) {
         setUsernameAvailable(false);
+        return;
       }
+      navigate('/login');
     } catch (error) {
-      console.log(error)
+      console.log(error.message);
     }
   }
 
   return (
     <div className="wrapper">
       <Routes>
-        <Route path='/login'
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path={'/login'}
           element={
             <>
               <h2>Login Account</h2>
@@ -103,7 +115,7 @@ function LoginPage() {
               <button onClick={handleSignup} className='login-button'>Sign UP</button>
               <p className='message'>{message}</p>
 
-              <div div className='lower'>Already have an account? 
+              <div div className='lower'>Already have an account?
                 <span onClick={() => navigate("/login")}>login</span></div>
             </>
           }></Route>

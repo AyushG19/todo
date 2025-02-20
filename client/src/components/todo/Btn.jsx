@@ -1,29 +1,25 @@
 import React, { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TodoContext } from '../../context/inputContext';
 import iconGif from '../../assets/done3.gif';
+import api from '../../api'
 
 const Btn = (props) => {
     const { setList } = useContext(TodoContext);
-    const [isAnimating,setIsAnimating] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const navigate = useNavigate();
 
-        const insertAnimation = () => {
-            setIsAnimating(true);
-            setTimeout(() => {setIsAnimating(false)}, 2000);
-        }
+    const insertAnimation = () => {
+        setIsAnimating(true);
+        setTimeout(() => { setIsAnimating(false) }, 2000);
+    }
     const handleInsert = async () => {
-        if(!props.body){ 
+        if (!props.body) {
             alert("Shame you don't have nothig to do")
             return;
         }
         try {
-            const res = await fetch(
-                "http://localhost:3000/todo",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ description: props.body })
-                });
-            const newTodo = await res.json();
+            const newTodo = await api.post("http://localhost:3000/todo",{ description: props.body });
             insertAnimation();
             props.onClear();
             setList((prev) => [...prev, newTodo])
