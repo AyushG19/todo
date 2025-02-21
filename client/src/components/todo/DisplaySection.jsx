@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { TodoContext } from '../../context/inputContext.jsx';
 import EditModal from "./EditModal.jsx";
 import '../../App.css'; // Import the CSS file for styling
-
+import api from '../../api.js';
 const DisplaySection = () => {
   const { list,setList } = useContext(TodoContext);
 
@@ -30,13 +30,13 @@ const DisplaySection = () => {
   }
   const handleDelete = async(item)=>{
     const id  = item.tid;
-    const message = await fetch(
-      `http://localhost:3000/todo/${id}`,
-      {
-        method: "DELETE"
-      })
-    const updatedList = list.filter((ele)=>ele.tid != item.tid)
-    setList(updatedList);
+    const data = await api.delete(`http://localhost:3000/todo/${id}`);
+    if(data){
+      const updatedList = list.filter((ele)=>ele.tid != item.tid);
+      setList(updatedList);
+    }else{
+      alert("unable to delete");
+    }
   }
   return (
     <div className='todo-table-container'>
@@ -71,7 +71,7 @@ const DisplaySection = () => {
           )}
         </tbody>
       </table>
-      {selectedItem && <EditModal item={selectedItem} onClose={handleClose} />}
+      {selectedItem && <EditModal item={{selectedItem,setSelectedItem}} onClose={handleClose} />}
     </div>
 
   );

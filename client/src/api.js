@@ -104,6 +104,10 @@ const api = {
             body: JSON.stringify(data),
         });
         return await res.json();
+    },
+    async delete(url, options = {}) {
+        const res = await apiClient(url, { ...options, method: "DELETE" });
+        return await res.json();
     }
 }
 

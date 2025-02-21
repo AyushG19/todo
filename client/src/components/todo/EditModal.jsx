@@ -1,30 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 
 const EditModal = ({ item, onClose }) => {
-  const [description, setDescription] = useState(item.description);
-  const navigate = useNavigate();
+  const [description, setDescription] = useState(item.selectedItem.description);
+  const { setSelectedItem } = item;
 
   const handleSave = async () => {
-    const id = item.tid;
+    const id = item.selectedItem.tid;
     console.log('Updated description: ', description);
 
     try {
-      const response = await fetch(`http://localhost:3000/todo/${id}`, {
-        method: "PUT",
-        headers: {authorization: `Bearer ${localStorage.getItem('token')}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ description }),
-        credentials: 'include'
-      });
+      const data = await api.put(`http://localhost:3000/todo/${id}`, { description })
 
-      if (response.status === 401 || response.status === 403) {
-        navigate('/login');
-      }
-
-      const updatedTask = await response.json();
-      console.log('Updated task:', updatedTask);
-
-      // Pass the updated task back to the parent
+      console.log('Updated task:', data);
       onClose(description);
     } catch (error) {
       console.error('Error updating the task:', error.message);
@@ -43,7 +31,7 @@ const EditModal = ({ item, onClose }) => {
         />
         <div className="modal-actions">
           <button onClick={handleSave}>Save</button>
-          <button onClick={handleSave}>Cancel</button>
+          <button onClick={() => setSelectedItem(null)}>Cancel</button>
         </div>
       </div>
     </div>
